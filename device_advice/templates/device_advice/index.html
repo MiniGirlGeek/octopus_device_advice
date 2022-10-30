@@ -1,0 +1,70 @@
+{% block content %}
+<head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+</head>
+  <h2>Octopus Agile Device Advice</h2>
+  <p>The best time to complete a half hour task is {{hlfhbt}} for {{hlfhmin}}p/kWh</p>
+  <p>The best time to complete a one hour task is {{ohbt}} for {{ohmin}}p/kWh</p>
+  <p>The best time to complete a one and a half hour task is {{hhlfbt}} for {{hhlfmin}}p/kWh</p>
+<p>The best time to complete a two hour task is {{thbt}} for {{thmin}}p/kWh</p>
+<p>The best time to complete a eight hour task is {{ehbt}} for {{ehmin}}p/kWh</p>
+<canvas id="myChart"></canvas>
+<script>
+
+  const data = {
+    datasets: [{
+      label: 'Raw Data',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+      data: {{data|safe}},
+    },
+    {
+      label: 'Hourly Average',
+      backgroundColor: 'rgb(0, 255, 132)',
+      borderColor: 'rgb(0, 255, 132)',
+      data: {{data2|safe}},
+    },
+    {
+      label: 'Hour and Half Average',
+      backgroundColor: 'rgb(0, 132, 255)',
+      borderColor: 'rgb(0, 132, 255)',
+      data: {{data3|safe}},
+    }]
+  };
+
+  const config = {
+    type: 'line',
+    data: data,
+    options: {
+    scales: {
+      x: {
+        type: 'time',
+        min: '{{now|safe}}',
+      }
+    }
+  }
+  };
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
+
+{% if current_task_list %}
+    <ul>
+    {% for task in current_task_list %}
+        <li>The {{task.device.name}} needs {{ task.use_case }} and will take {{ task.duration }} hours
+        <form method="post">
+            <input type="hidden" name="duration" value="{{task.duration}}">
+            <input type="submit" value="Schedule {{task.device.name}}: {{ task.use_case }}" name="task">
+        </form>
+
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No tasks are available.</p>
+{% endif %}
+
+{% endblock %}
